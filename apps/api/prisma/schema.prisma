@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserType {
+  ADMIN
+  USER
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  INSANE
+}
+
+enum BattleStatus {
+  PENDING // Waiting for opponent or start signal
+  ONGOING // Match in progress
+  COMPLETED // Match finished normally
+  ABORTED // Someone disconnected/cancelled
+}
+
+// ---------------------------------------------------------
+// AUTH & USER MANAGEMENT
+// ---------------------------------------------------------
+
+model User {
+  id         String   @id @default(cuid())
+  username   String   @unique
+  email      String   @unique
+  password   String
+  isVerified Boolean  @default(false)
+  userType   UserType @default(USER)
+
+  // Auth fields
+  verificationToken String?        @unique
+  hashedOtp         String?
+  otpExpiry         DateTime?
+  otpCreatedAt      DateTime?
+  refreshTokens     RefreshToken[]
+
+  profile Profile?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isVerified, userType])
+}
+
+model Profile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Social & Info
+  fullName     String?
+  bio          String?
+  avatarUrl    String?
+  linkedInLink String?
+  githubLink   String?
+  leetcodeLink String?
+
+  // Gamification & Stats
+  streak Int @default(0)
+  rating Int @default(1200) // Default ELO
+  coins  Int @default(0) // For "Sabotage" items
+
+  // Relations
+  groups ProfileGroup[]
+
+  battlesAsPlayer1 Battle[] @relation("battlePlayer1")
+  battlesAsPlayer2 Battle[] @relation("battlePlayer2")
+  wonBattles       Battle[] @relation("battleWinner")
+
+  submissions Submission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([rating(sort: Desc)]) // Leaderboard
+  @@index([streak])
+}
+
+// ---------------------------------------------------------
+// GAMEPLAY & CONTENT
+// ---------------------------------------------------------
+
+model Problem {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  description String     @db.Text
+  difficulty  Difficulty
+
+  // Technical Data
+  starterCode String? @db.Text 
+  testCases   Json?
+
+  battles     Battle[]
+  submissions Submission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Battle {
+  id     String       @id @default(cuid())
+  status BattleStatus @default(PENDING)
+
+  // Link to the content
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id])
+
+  // Players
+  player1Id String
+  player2Id String
+  player1   Profile @relation("battlePlayer1", fields: [player1Id], references: [id])
+  player2   Profile @relation("battlePlayer2", fields: [player2Id], references: [id])
+
+  // Result
+  winnerId String?
+  winner   Profile? @relation("battleWinner", fields: [winnerId], references: [id])
+
+  // Metrics
+  player1TimeMs Int?
+  player2TimeMs Int?
+
+  // Snapshot for Sharing
+  snapshotUrl String?
+
+  submissions Submission[]
+
+  createdAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  @@index([player1Id])
+  @@index([player2Id])
+}
+
+model Submission {
+  id       String @id @default(cuid())
+  code     String @db.Text
+  language String @default("cpp")
+
+  // Judge Results
+  status        String // "ACCEPTED", "WRONG_ANSWER", "COMPILE_ERROR"
+  passedTests   Int    @default(0)
+  totalTests    Int    @default(0)
+  executionTime Int // in ms
+  memoryUsed    Int // in KB
+
+  // AI Feature
+  aiFeedback String? @db.Text // Sensei analysis
+
+  // Relations
+  battleId  String
+  battle    Battle  @relation(fields: [battleId], references: [id])
+  playerId  String
+  player    Profile @relation(fields: [playerId], references: [id])
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------
+// COMMUNITY
+// ---------------------------------------------------------
+
+model Group {
+  id          String         @id @default(cuid())
+  name        String         @unique
+  slug        String         @unique
+  avatarUrl   String?
+  description String? 
+  profiles    ProfileGroup[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ProfileGroup {
+  id        String  @id @default(cuid())
+  profileId String
+  groupId   String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  group     Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  role      String  @default("MEMBER") // ADMIN, MEMBER
+
+  createdAt DateTime @default(now())
+
+  @@unique([profileId, groupId])
+  @@index([groupId])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
