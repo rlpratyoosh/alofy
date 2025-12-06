@@ -15,7 +15,6 @@ enum Difficulty {
   EASY
   MEDIUM
   HARD
-  INSANE
 }
 
 enum BattleStatus {
@@ -25,9 +24,7 @@ enum BattleStatus {
   ABORTED // Someone disconnected/cancelled
 }
 
-// ---------------------------------------------------------
 // AUTH & USER MANAGEMENT
-// ---------------------------------------------------------
 
 model User {
   id         String   @id @default(cuid())
@@ -86,9 +83,7 @@ model Profile {
   @@index([streak])
 }
 
-// ---------------------------------------------------------
 // GAMEPLAY & CONTENT
-// ---------------------------------------------------------
 
 model Problem {
   id          String     @id @default(cuid())
@@ -168,9 +163,7 @@ model Submission {
   createdAt DateTime @default(now())
 }
 
-// ---------------------------------------------------------
 // COMMUNITY
-// ---------------------------------------------------------
 
 model Group {
   id          String         @id @default(cuid())
