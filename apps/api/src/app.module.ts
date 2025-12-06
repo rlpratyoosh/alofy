@@ -11,11 +11,16 @@ import { RolesGuard } from './common/guards/roles.guard';
 import envValidation from './config/env.validation';
 import mailConfig from './config/mail.config';
 import { UserModule } from './user/user.module';
+import { BullModule } from '@nestjs/bullmq';
+import { CodeExecutorController } from './executor.controller';
+import { CodeExecutor } from './execution.worker';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
     UserModule,
     AuthModule,
+    EventsModule,
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
@@ -36,10 +41,24 @@ import { UserModule } from './user/user.module';
         },
       }),
     }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+      },
+      defaultJobOptions: {
+        removeOnComplete: false,
+        removeOnFail: false
+      },
+    }),
+    BullModule.registerQueue({
+      name: 'code-execution-queue',
+    }),
   ],
-  controllers: [AppController],
+  controllers: [AppController, CodeExecutorController],
   providers: [
     AppService,
+    CodeExecutor,
     {
       provide: APP_PIPE,
       useClass: ZodValidationPipe,
