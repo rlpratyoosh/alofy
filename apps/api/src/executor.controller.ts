@@ -3,7 +3,6 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { SetPublic } from './common/decorators/public.decorator';
 
-@SetPublic()
 @Controller()
 export class CodeExecutorController {
   constructor(

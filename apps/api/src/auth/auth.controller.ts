@@ -150,4 +150,14 @@ export class AuthController {
 
     return { message: 'OTP successfully sent!' };
   }
+
+  @Get('me')
+  async getMe(@Request() req) {
+    return {
+      id: req.user.userId,
+      username: req.user.username,
+      email: req.user.email,
+      userType: req.user.userType
+    }
+  }
 }

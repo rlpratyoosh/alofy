@@ -44,7 +44,7 @@ model User {
   profile Profile?
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([isVerified, userType])
 }
@@ -77,7 +77,7 @@ model Profile {
   submissions Submission[]
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([rating(sort: Desc)]) // Leaderboard
   @@index([streak])
@@ -93,14 +93,14 @@ model Problem {
   difficulty  Difficulty
 
   // Technical Data
-  starterCode String? @db.Text 
+  starterCode String? @db.Text
   testCases   Json?
 
   battles     Battle[]
   submissions Submission[]
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Battle {
@@ -170,10 +170,10 @@ model Group {
   name        String         @unique
   slug        String         @unique
   avatarUrl   String?
-  description String? 
+  description String?
   profiles    ProfileGroup[]
   createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  updatedAt   DateTime       @default(now()) @updatedAt
 }
 
 model ProfileGroup {
@@ -196,5 +196,5 @@ model RefreshToken {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }

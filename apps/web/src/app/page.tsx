@@ -1,4 +1,5 @@
 "use client";
+import api from "@/libs/axios";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -27,18 +28,11 @@ export default function Home() {
     const [codeResults, setCodeResults] = useState<codeResult[]>([]);
 
     const executeCode = async () => {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/execute`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                language: "python",
-                code,
-                input,
-            }),
+        const { data } = await api.post("/execute", {
+            language: "python",
+            code,
+            input,
         });
-        const data = await res.json();
         setJobId(data.jobId);
     };
 
@@ -69,14 +63,14 @@ export default function Home() {
 
         socket.on("recieveResult", result => {
             console.log(result);
-            const isError = (result.run.stderr.trim()) ? true: false;
+            const isError = result.run.stderr.trim() ? true : false;
             setCodeResults(prevCodeResults => [
                 ...prevCodeResults,
                 {
                     sender: "user",
                     output: result.run.output,
                     cpuTime: result.run.cpu_time,
-                    isError
+                    isError,
                 },
             ]);
         });
@@ -143,7 +137,11 @@ export default function Home() {
                                 {code.sender}'s code executed in {code.cpuTime}s
                             </pre>
                         </div>
-                        {code.isError ? <pre className="text-red-600 text-xs">{code.output}</pre> : <pre className="p-2">{code.output}</pre>}
+                        {code.isError ? (
+                            <pre className="text-red-600 text-xs">{code.output}</pre>
+                        ) : (
+                            <pre className="p-2">{code.output}</pre>
+                        )}
                     </div>
                 ))}
             </div>
