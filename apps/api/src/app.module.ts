@@ -15,6 +15,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { CodeExecutorController } from './executor.controller';
 import { CodeExecutor } from './execution.worker';
 import { EventsModule } from './events/events.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { EventsModule } from './events/events.module';
     BullModule.registerQueue({
       name: 'code-execution-queue',
     }),
+    ProfileModule,
   ],
   controllers: [AppController, CodeExecutorController],
   providers: [
