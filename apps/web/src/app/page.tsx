@@ -1,9 +1,9 @@
 "use client";
 import api from "@/libs/axios";
+import socket from "@/libs/socket";
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 
-const socket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
+socket.connect();
 
 type Message = {
     sender: string;
@@ -77,7 +77,7 @@ export default function Home() {
 
         return () => {
             socket.off("recieveMessage");
-            socket.off("reciebeResult");
+            socket.off("recieveResult");
         };
     }, []);
 
