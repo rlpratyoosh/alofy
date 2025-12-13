@@ -1,4 +1,5 @@
 import { MailerModule } from '@nestjs-modules/mailer';
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
@@ -6,22 +7,29 @@ import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { BattleModule } from './battle/battle.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import envValidation from './config/env.validation';
 import mailConfig from './config/mail.config';
-import { UserModule } from './user/user.module';
-import { BullModule } from '@nestjs/bullmq';
-import { CodeExecutorController } from './executor.controller';
-import { CodeExecutor } from './execution.worker';
 import { EventsModule } from './events/events.module';
+import { CodeExecutor } from './execution.worker';
+import { CodeExecutorController } from './executor.controller';
+import { GroupModule } from './group/group.module';
+import { ProblemModule } from './problem/problem.module';
 import { ProfileModule } from './profile/profile.module';
+import { SubmissionModule } from './submission/submission.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     UserModule,
     AuthModule,
     EventsModule,
+    ProblemModule,
+    BattleModule,
+    SubmissionModule,
+    GroupModule,
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
@@ -49,7 +57,7 @@ import { ProfileModule } from './profile/profile.module';
       },
       defaultJobOptions: {
         removeOnComplete: false,
-        removeOnFail: false
+        removeOnFail: false,
       },
     }),
     BullModule.registerQueue({

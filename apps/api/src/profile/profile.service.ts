@@ -4,18 +4,22 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import validateOrThrow from 'src/common/helper/zod-validation.helper';
+import { PrismaService } from 'src/prisma.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { PrismaService } from 'src/prisma.service';
+import { CreateProfileSchema } from './schema/create-profile.schema';
+import { UpdateProfileSchema } from './schema/update-profile.schema';
 
 @Injectable()
 export class ProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createProfileDto: CreateProfileDto) {
+  async create(createProfileDto: CreateProfileDto) {
+    const data = validateOrThrow(CreateProfileSchema, createProfileDto);
     try {
-      const profile = this.prisma.profile.create({
-        data: createProfileDto,
+      const profile = await this.prisma.profile.create({
+        data,
       });
     } catch (er) {
       if (er.code === 'P2002')
@@ -28,12 +32,12 @@ export class ProfileService {
     return 'Successfully added new Profile';
   }
 
-  findAll() {
-    return this.prisma.profile.findMany();
+  async findAll() {
+    return await this.prisma.profile.findMany();
   }
 
-  findOne(id: string) {
-    let profile = this.prisma.profile.findUnique({
+  async findOne(id: string) {
+    let profile = await this.prisma.profile.findUnique({
       where: { userId: id },
     });
 
@@ -42,8 +46,8 @@ export class ProfileService {
     return profile;
   }
 
-  findOneAdmin(id: string) {
-    let profile = this.prisma.profile.findUnique({
+  async findOneAdmin(id: string) {
+    let profile = await this.prisma.profile.findUnique({
       where: { id },
     });
 
@@ -52,11 +56,12 @@ export class ProfileService {
     return profile;
   }
 
-  update(id: string, updateProfileDto: UpdateProfileDto) {
+  async update(id: string, updateProfileDto: UpdateProfileDto) {
+    const data = validateOrThrow(UpdateProfileSchema, updateProfileDto);
     try {
-      this.prisma.profile.update({
+      await this.prisma.profile.update({
         where: { userId: id },
-        data: updateProfileDto,
+        data,
       });
     } catch (er) {
       if (er.code === 'P2025')
@@ -67,11 +72,12 @@ export class ProfileService {
     return 'Successfully updated profile';
   }
 
-  updateAdmin(id: string, updateProfileDto: UpdateProfileDto) {
+  async updateAdmin(id: string, updateProfileDto: UpdateProfileDto) {
+    const data = validateOrThrow(UpdateProfileSchema, updateProfileDto);
     try {
-      this.prisma.profile.update({
+      await this.prisma.profile.update({
         where: { id },
-        data: updateProfileDto,
+        data,
       });
     } catch (er) {
       if (er.code === 'P2025')
@@ -82,9 +88,9 @@ export class ProfileService {
     return 'Successfully updated profile';
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     try {
-      this.prisma.profile.delete({
+      await this.prisma.profile.delete({
         where: { id },
       });
     } catch (er) {

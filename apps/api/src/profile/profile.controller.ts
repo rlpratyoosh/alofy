@@ -1,30 +1,30 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Req,
 } from '@nestjs/common';
-import { ProfileService } from './profile.service';
+import { AllowedRole } from 'src/common/decorators/roles.decorator';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { AllowedRole } from 'src/common/decorators/roles.decorator';
+import { ProfileService } from './profile.service';
 
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @AllowedRole("ADMIN")
+  @AllowedRole('ADMIN')
   @Post()
   create(@Body() createProfileDto: CreateProfileDto) {
     return this.profileService.create(createProfileDto);
   }
 
-  @AllowedRole("ADMIN")
-  @Get()
+  @AllowedRole('ADMIN')
+  @Get('all')
   findAll() {
     return this.profileService.findAll();
   }
@@ -34,16 +34,19 @@ export class ProfileController {
     return this.profileService.findOne(req.user.userId);
   }
 
-  @AllowedRole("ADMIN")
-  @Get('admin')
-  findOneAdmin(@Body() body: {id: string}) {
-    return this.profileService.findOneAdmin(body.id)
+  @AllowedRole('ADMIN')
+  @Get('admin/:id')
+  findOneAdmin(@Param('id') id: string) {
+    return this.profileService.findOneAdmin(id);
   }
 
-  @AllowedRole("ADMIN")
-  @Get('admin')
-  updateAdmin(@Body() body: {id: string, updateProfileDto: UpdateProfileDto}) {
-    return this.profileService.updateAdmin(body.id, body.updateProfileDto)
+  @AllowedRole('ADMIN')
+  @Patch('admin/:id')
+  updateAdmin(
+    @Param('id') id: string,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return this.profileService.updateAdmin(id, updateProfileDto);
   }
 
   @Patch()
@@ -51,7 +54,7 @@ export class ProfileController {
     return this.profileService.update(req.user.userId, updateProfileDto);
   }
 
-  @AllowedRole("ADMIN")
+  @AllowedRole('ADMIN')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.profileService.remove(id);
