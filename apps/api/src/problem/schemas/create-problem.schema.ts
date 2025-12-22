@@ -15,7 +15,7 @@ export const CreateProblemSchema = z.object({
     ),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   difficulty: z.enum(['EASY', 'MEDIUM', 'HARD'], {
-    errorMap: () => ({ message: 'Difficulty must be EASY, MEDIUM, or HARD' }),
+    message: 'Difficulty must be EASY, MEDIUM, or HARD'
   }),
   starterCode: z.string().optional(),
   testCases: z.any().optional(),

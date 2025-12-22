@@ -21,7 +21,7 @@ export const UpdateProblemSchema = z.object({
     .optional(),
   difficulty: z
     .enum(['EASY', 'MEDIUM', 'HARD'], {
-      errorMap: () => ({ message: 'Difficulty must be EASY, MEDIUM, or HARD' }),
+      message: 'Difficulty must be EASY, MEDIUM, or HARD' 
     })
     .optional(),
   starterCode: z.string().optional(),
