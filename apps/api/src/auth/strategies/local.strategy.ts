@@ -6,6 +6,10 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { safeUser } from '../auth.service';
+export interface safeUserWOTP extends safeUser {
+  otp?: string
+}
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -20,11 +24,11 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     req: Request,
     username: string,
     password: string,
-  ): Promise<any> {
+  ): Promise<safeUserWOTP> {
     const user = await this.authService.validateUser(username, password);
     if (!user) throw new UnauthorizedException('Invalid Credentials');
 
-    const otp = req.body.otp;
+    const otp = req.body.otp as string | undefined;
 
     return {
       ...user,

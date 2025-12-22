@@ -8,14 +8,29 @@ import {
   HttpStatus,
   Param,
   Post,
-  Request,
+  Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { SetPublic } from 'src/common/decorators/public.decorator';
 import { AuthGuard } from '@nestjs/passport';
+import type { Response, Request } from 'express';
+import { safeUserWOTP } from './strategies/local.strategy';
+interface RequestWUser extends Request {
+  user: safeUserWOTP;
+}
+import { validatedUser } from './strategies/jwt.strategy';
+export interface ValidatedRequest extends Request {
+  user: validatedUser;
+}
+
+import { refreshUser } from './strategies/refresh-token.strategy';
+interface RequestWRefreshUser extends Request {
+  user: refreshUser;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -25,11 +40,20 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Res({ passthrough: true }) res, @Request() req) {
+  async login(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: RequestWUser,
+  ) {
+    if (!req.user) throw new UnauthorizedException('User not found!');
+
     if (!req.user.isVerified)
       throw new ForbiddenException('User is not verified!');
 
-    if (!req.user.otp || !req.user.otpExpiry || req.user.otpExpiry.getTime() < Date.now())
+    if (
+      !req.user.otp ||
+      !req.user.otpExpiry ||
+      req.user.otpExpiry.getTime() < Date.now()
+    )
       throw new ForbiddenException('Invalid or Expired OTP');
 
     const { accessToken, refreshToken } = await this.authService.login(
@@ -58,7 +82,7 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt-refresh'))
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  async refresh(@Request() req, @Res({ passthrough: true }) res) {
+  async refresh(@Req() req: RequestWRefreshUser, @Res({ passthrough: true }) res: Response) {
     const userId = req.user.sub;
     const refreshToken = req.user.refreshToken;
     const tokenId = req.user.tokenId;
@@ -84,7 +108,7 @@ export class AuthController {
   @Get('verify/:token')
   async verifyUser(
     @Param('token') token: string,
-    @Res({ passthrough: true }) res,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const { accessToken, refreshToken } =
       await this.authService.verifyUser(token);
@@ -105,7 +129,7 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async signOut(@Request() req, @Res({ passthrough: true }) res) {
+  async signOut(@Req() req: ValidatedRequest, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies['refresh-token'];
 
     if (refreshToken) await this.authService.logout(refreshToken);
@@ -118,7 +142,10 @@ export class AuthController {
 
   @Post('logoutall')
   @HttpCode(HttpStatus.OK)
-  async logoutAll(@Request() req, @Res({ passthrough: true }) res) {
+  async logoutAll(
+    @Req() req: ValidatedRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const userId = req.user.userId;
     if (userId) await this.authService.logoutAll(userId);
 
@@ -132,7 +159,7 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('reverify')
   @HttpCode(HttpStatus.OK)
-  async reverify(@Request() req, @Res({ passthrough: true }) res) {
+  async reverify(@Req() req: RequestWUser, @Res({ passthrough: true }) res: Response) {
     if (req.user.isVerified)
       throw new BadRequestException('User is already verified!');
 
@@ -145,19 +172,19 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('sendotp')
   @HttpCode(HttpStatus.OK)
-  async sendOtp(@Request() req) {
+  async sendOtp(@Req() req: RequestWUser) {
     await this.authService.sendOtp(req.user);
 
     return { message: 'OTP successfully sent!' };
   }
 
   @Get('me')
-  async getMe(@Request() req) {
+  async getMe(@Req() req: ValidatedRequest) {
     return {
       id: req.user.userId,
       username: req.user.username,
       email: req.user.email,
-      userType: req.user.userType
-    }
+      userType: req.user.userType,
+    };
   }
 }

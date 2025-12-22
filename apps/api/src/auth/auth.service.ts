@@ -16,6 +16,26 @@ import { PrismaService } from 'src/prisma.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { HashingProvider } from './providers/hashing.provider';
 import { RegisterUserSchema } from './schema/register-user.schema';
+import { User } from '@repo/types';
+import type { safeUserWOTP } from './strategies/local.strategy';
+import {
+  PrismaClientInitializationError,
+  PrismaClientKnownRequestError,
+} from '@prisma/client/runtime/client';
+export type safeUser = Omit<User, 'password'>;
+export type accessTokenPayload = {
+  sub: string;
+  username: string;
+  email: string;
+  userType: string;
+  isVerified: boolean;
+  payloadType: string;
+};
+export type refreshTokenPayload = {
+  sub: string;
+  payloadType: string;
+  tokenId: string;
+};
 
 @Injectable()
 export class AuthService {
@@ -28,7 +48,10 @@ export class AuthService {
     private readonly mailService: MailerService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<safeUser | null> {
     const user = await this.prisma.user.findUnique({
       where: { username },
     });
@@ -47,7 +70,10 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
+  async login(user: safeUserWOTP) {
+    if (!user.otp || !user.hashedOtp)
+      throw new ForbiddenException('Invalid OTP');
+
     const isMatch = await this.hashingProvider.compare(
       user.otp,
       user.hashedOtp,
@@ -87,14 +113,20 @@ export class AuthService {
       password: await this.hashingProvider.hash(validatedData.password),
     };
 
-    let user;
+    let user: User;
 
     try {
       user = await this.prisma.user.create({ data });
     } catch (error) {
-      if (error.code === 'P2002')
-        throw new BadRequestException('User already exists');
-      console.log(error); // For Debugging
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002')
+          throw new BadRequestException('User already exists');
+      }
+      // console.log(error); // For Debugging
+      if (error instanceof PrismaClientInitializationError)
+        throw new InternalServerErrorException(
+          'Problem while connecting to database',
+        );
       throw new InternalServerErrorException('Something went wrong');
     }
 
@@ -145,7 +177,7 @@ export class AuthService {
   }
 
   async verifyUser(token: string) {
-    let payload;
+    let payload: { sub: string };
 
     try {
       payload = await this.jwt.verifyAsync(token, {
@@ -189,7 +221,7 @@ export class AuthService {
     return tokens;
   }
 
-  async reverify(user) {
+  async reverify(user: safeUser) {
     const verificationToken = await this.generateVerificationToken(user);
 
     await this.prisma.user.update({
@@ -209,7 +241,6 @@ export class AuthService {
       await this.prisma.refreshToken.delete({
         where: { id: tokenId },
       });
-    ``;
   }
 
   async logoutAll(userId: string) {
@@ -238,7 +269,7 @@ export class AuthService {
     );
   }
 
-  async generateTokens(user: any, tokenId: string) {
+  async generateTokens(user: safeUser, tokenId: string) {
     const accessToken = await this.signTokens(
       user.id,
       this.auth.expiresIn,
@@ -268,7 +299,7 @@ export class AuthService {
     };
   }
 
-  async generateVerificationToken(user: any) {
+  async generateVerificationToken(user: safeUser) {
     return await this.signTokens(
       user.id,
       this.auth.verificationExpiresIn,
@@ -288,7 +319,7 @@ export class AuthService {
     });
   }
 
-  async sendOtp(user: any) {
+  async sendOtp(user: safeUser) {
     const existingUser = await this.prisma.user.findUnique({
       where: { id: user.id },
     });
