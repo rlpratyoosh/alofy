@@ -10,6 +10,10 @@ import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CreateProfileSchema } from './schema/create-profile.schema';
 import { UpdateProfileSchema } from './schema/update-profile.schema';
+import {
+  PrismaClientInitializationError,
+  PrismaClientKnownRequestError,
+} from '@prisma/client/runtime/client';
 
 @Injectable()
 export class ProfileService {
@@ -22,9 +26,13 @@ export class ProfileService {
         data,
       });
     } catch (er) {
-      if (er.code === 'P2002')
+      if (er instanceof PrismaClientKnownRequestError && er.code === 'P2002')
         throw new BadRequestException(
           'A profile already exists on the specified user!',
+        );
+      if (er instanceof PrismaClientInitializationError)
+        throw new InternalServerErrorException(
+          'Failed to connect with database',
         );
       throw new InternalServerErrorException('Unknown error occured!');
     }
@@ -64,8 +72,12 @@ export class ProfileService {
         data,
       });
     } catch (er) {
-      if (er.code === 'P2025')
+      if (er instanceof PrismaClientKnownRequestError && er.code === 'P2025')
         throw new NotFoundException('Profile not found!');
+      if (er instanceof PrismaClientInitializationError)
+        throw new InternalServerErrorException(
+          'Failed to connect with database',
+        );
       throw new InternalServerErrorException('Unknown error occured!');
     }
 
@@ -80,8 +92,12 @@ export class ProfileService {
         data,
       });
     } catch (er) {
-      if (er.code === 'P2025')
+      if (er instanceof PrismaClientKnownRequestError && er.code === 'P2025')
         throw new NotFoundException('Profile not found!');
+      if (er instanceof PrismaClientInitializationError)
+        throw new InternalServerErrorException(
+          'Failed to connect with database',
+        );
       throw new InternalServerErrorException('Unknown error occured!');
     }
 
@@ -94,8 +110,12 @@ export class ProfileService {
         where: { id },
       });
     } catch (er) {
-      if (er.code === 'P2025')
+      if (er instanceof PrismaClientKnownRequestError && er.code === 'P2025')
         throw new NotFoundException('Profile not found!');
+      if (er instanceof PrismaClientInitializationError)
+        throw new InternalServerErrorException(
+          'Failed to connect with database',
+        );
       throw new InternalServerErrorException('Unknown error occured!');
     }
 

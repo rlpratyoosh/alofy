@@ -12,6 +12,7 @@ import { AllowedRole } from 'src/common/decorators/roles.decorator';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ProfileService } from './profile.service';
+import type { ValidatedRequest } from 'src/auth/auth.controller';
 
 @Controller('profile')
 export class ProfileController {
@@ -30,7 +31,7 @@ export class ProfileController {
   }
 
   @Get()
-  findOne(@Req() req) {
+  findOne(@Req() req: ValidatedRequest) {
     return this.profileService.findOne(req.user.userId);
   }
 
@@ -50,7 +51,7 @@ export class ProfileController {
   }
 
   @Patch()
-  update(@Req() req, @Body() updateProfileDto: UpdateProfileDto) {
+  update(@Req() req: ValidatedRequest, @Body() updateProfileDto: UpdateProfileDto) {
     return this.profileService.update(req.user.userId, updateProfileDto);
   }
 
