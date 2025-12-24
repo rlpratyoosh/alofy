@@ -23,7 +23,6 @@ export class GroupController {
     return this.groupService.create(createGroupDto, req.user.profileId);
   }
 
-  @SetPublic()
   @Get()
   findAll() {
     return this.groupService.findAll();
@@ -34,19 +33,16 @@ export class GroupController {
     return this.groupService.getMyGroups(req.user.profileId);
   }
 
-  @SetPublic()
   @Get('slug/:slug')
   findBySlug(@Param('slug') slug: string) {
     return this.groupService.findBySlug(slug);
   }
 
-  @SetPublic()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.groupService.findOne(id);
   }
 
-  @SetPublic()
   @Get(':id/leaderboard')
   getLeaderboard(@Param('id') id: string) {
     return this.groupService.getLeaderboard(id);
