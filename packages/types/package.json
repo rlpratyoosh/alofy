@@ -21,6 +21,9 @@
         "build": "tsc --emitDeclarationOnly --declaration --outDir dist",
         "clean": "rm -rf dist"
     },
+    "dependencies": {
+        "@prisma/client": "^7.1.0"
+    },
     "devDependencies": {
         "typescript": "^5.9.2"
     }

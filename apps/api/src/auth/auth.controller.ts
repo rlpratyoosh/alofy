@@ -180,11 +180,6 @@ export class AuthController {
 
   @Get('me')
   async getMe(@Req() req: ValidatedRequest) {
-    return {
-      id: req.user.userId,
-      username: req.user.username,
-      email: req.user.email,
-      userType: req.user.userType,
-    };
+    return this.authService.getMe(req.user)
   }
 }

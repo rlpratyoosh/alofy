@@ -22,6 +22,7 @@ import {
   PrismaClientInitializationError,
   PrismaClientKnownRequestError,
 } from '@prisma/client/runtime/client';
+import type { validatedUser } from './strategies/jwt.strategy';
 export type safeUser = Omit<User, 'password'>;
 export type accessTokenPayload = {
   sub: string;
@@ -351,5 +352,19 @@ export class AuthService {
     const message = `Your OTP is: ${otp}`;
 
     await this.sendMail(message, existingUser.email);
+  }
+
+  async getMe(user: validatedUser) {
+    const profile = await this.prisma.profile.findUnique({
+      where: { userId: user.userId },
+    });
+
+    if (!profile)
+      throw new BadRequestException("No Profile is associated with the user")
+
+    return {
+      ...user,
+      profile
+    }
   }
 }
