@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: alofy_postgres_dev
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-alofy}
+    ports:
+      - "5432:5432"
+    volumes:
+      - alofy_postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - alofy_dev_network
+
+  redis:
+    image: redis:alpine
+    container_name: alofy_redis_dev
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - alofy_redis_dev_data:/data
+    networks:
+      - alofy_dev_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: alofy_nginx_dev
+    restart: always
+    network_mode: host
+    volumes:
+      - ./docker/nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+
+  piston:
+    image: ghcr.io/engineer-man/piston
+    container_name: alofy_piston_dev
+    restart: always
+    privileged: true
+    volumes:
+      - alofy_piston_dev_data:/piston
+    ports:
+      - 2000:2000
+    tmpfs:
+      - /tmp:exec
+    networks:
+      - alofy_dev_network
+
+networks:
+  alofy_dev_network:
+    driver: bridge
+
+volumes:
+  alofy_postgres_dev_data:
+  alofy_redis_dev_data:
+  alofy_piston_dev_data:

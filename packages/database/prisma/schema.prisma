@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ======================== Auth/User =========================
+
+enum UserType {
+  ADMIN
+  USER
+}
+
+model User {
+  id            String         @id @default(cuid())
+  username      String         @unique
+  email         String         @unique
+  password      String
+  isVerified    Boolean        @default(false)
+  refreshTokens RefreshToken[]
+  hashedOtp     String?
+  otpExpiry     DateTime?
+  otpCreatedAt  DateTime?
+  userType      UserType       @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  profile       Profile?
+
+  @@index([isVerified, userType])
+}
+
+model Profile {
+  id          String      @id @default(cuid())
+  displayName String?
+  avatarUrl   String?
+  bio         String?     @db.Text
+  games       Game[]
+  characters  Character[]
+  userId      String      @unique
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([displayName])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ======================= Code Execution Engine ===================
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ValidationType {
+  EXACT
+  UNORDERED
+}
+
+model Problem {
+  id             String         @id @default(cuid())
+  title          String
+  slug           String         @unique
+  validationType ValidationType
+  description    String         @db.Text
+  difficulty     Difficulty
+  starterCode    Json?
+  driverCode     Json?
+  testCases      Json?
+  examples       Json? // [ { "input" : "", "output" : "" } ]
+  constraints    String[]
+  hint           String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([title])
+}
+
+// ======================= Game ===================
+
+enum Status {
+  NOT_STARTED
+  IN_PROGRESS
+  GAME_OVER
+  ENDED
+}
+
+model Game {
+  id               String     @id @default(cuid())
+  characterId      String?
+  character        Character? @relation(fields: [characterId], references: [id])
+  status           Status     @default(NOT_STARTED)
+  point            Int        @default(0)
+  curLevel         Int        @default(0)
+  curLevelAttempts Int        @default(0)
+  curProblemSlug   String?
+  curLevelStory    String?    @db.Text
+  curLevelSummary  String?
+  defeatedCurBoss  Boolean    @default(false)
+  lives            Int        @default(3)
+  levels           String[]
+  profileId        String
+  profile          Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+enum Class {
+  cpp
+  java
+  python
+}
+
+enum Race {
+  human
+  elf
+  dwarf
+}
+
+enum Gender {
+  male
+  female
+}
+
+model Character {
+  id        String   @id @default(cuid())
+  name      String
+  race      Race
+  gender    Gender
+  age       Int
+  class     Class
+  games     Game[]
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

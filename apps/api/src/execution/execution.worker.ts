@@ -1,0 +1,183 @@
+import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Job } from 'bullmq';
+import { SubmitCodeDto } from './dto/execution.dto';
+import { prisma } from '@repo/db';
+
+type Result = {
+  language: string;
+  version: string;
+  run: {
+    stdout: string;
+    stderr: string;
+    output: string;
+    code: string;
+    signal: string;
+  };
+};
+
+type TestCase = {
+  input: string;
+  output: string;
+};
+
+interface JobWCode extends Job {
+  data: {
+    submitCodeDto: SubmitCodeDto;
+  };
+}
+
+import { ValidationType } from '@repo/db';
+import { EventsGateway } from 'src/events/events.gateway';
+
+function compareOutputs(
+  actual: string,
+  expected: string,
+  type: ValidationType = 'EXACT',
+) {
+  const cleanActual = actual.trim();
+  const cleanExpected = expected.trim();
+
+  if (cleanActual === cleanExpected) return true;
+  if (type === 'EXACT') return false;
+
+  const tokenize = (str: string) => str.split(/\s+/).filter((s) => s !== ' ');
+
+  const actualTokenized = tokenize(cleanActual);
+  const expectedTokenized = tokenize(cleanExpected);
+
+  if (actualTokenized.length !== expectedTokenized.length) return false;
+
+  const isNumeric = expectedTokenized.every((s) => !isNaN(Number(s)));
+
+  if (isNumeric) {
+    actualTokenized.sort((a, b) => Number(a) - Number(b));
+    expectedTokenized.sort((a, b) => Number(a) - Number(b));
+
+    return actualTokenized.every(
+      (num, i) => Math.abs(Number(num) - Number(expectedTokenized[i])) < 1e-9,
+    );
+  } else {
+    actualTokenized.sort();
+    expectedTokenized.sort();
+    return actualTokenized.every((val, i) => val === expectedTokenized[i]);
+  }
+}
+
+@Processor('executionQueue', { concurrency: 5 })
+export class ExecutionWorker extends WorkerHost {
+  constructor(private readonly events: EventsGateway) {
+    super();
+  }
+
+  async process(job: JobWCode) {
+    const { language, userCode, version, problemSlug, socketId, gameId } =
+      job.data.submitCodeDto;
+
+    const problem = await prisma.problem.findUnique({
+      where: {
+        slug: problemSlug,
+      },
+    });
+
+    const drivers = problem?.driverCode as Record<string, string>;
+    const driverTemplate = drivers[language];
+
+    const main = {
+      content: driverTemplate.replace('@@USER_CODE@@', userCode),
+    };
+
+    const testCases = problem?.testCases as TestCase[];
+
+    let count = 0;
+    let pass = true;
+    let error = '';
+    let failedExpected = '';
+    let failedResult = '';
+    for (const testCase of testCases) {
+      const data = {
+        language,
+        version,
+        files: [main],
+        stdin: testCase.input,
+      };
+
+      const response = await fetch('http://localhost:2000/api/v2/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = (await response.json()) as Result;
+
+      if (result.run.stderr) {
+        pass = false;
+        error = result.run.stderr;
+        break;
+      }
+
+      if (
+        compareOutputs(
+          result.run.stdout,
+          testCase.output,
+          problem?.validationType,
+        )
+      ) {
+        count++;
+        this.events.handleProgress(socketId, job.id as string, {
+          passed: count,
+          total: testCases.length,
+        });
+      } else {
+        pass = false;
+        failedExpected = testCase.output;
+        failedResult = result.run.stdout;
+        break;
+      }
+    }
+
+    if (pass) {
+      await prisma.game.update({
+        where: { id: gameId },
+        data: {
+          defeatedCurBoss: true,
+        },
+      });
+
+      this.events.handleResult(socketId, job.id as string, {
+        type: 'PASS',
+        passed: count,
+        total: testCases.length,
+      });
+    } else {
+      const game = await prisma.game.update({
+        where: { id: gameId },
+        data: {
+          curLevelAttempts: {
+            increment: 1,
+          },
+          lives: {
+            decrement: 1,
+          },
+        },
+      });
+
+      if (game.lives == 0) {
+        await prisma.game.update({
+          where: { id: gameId },
+          data: {
+            status: 'GAME_OVER',
+          },
+        });
+      }
+
+      this.events.handleResult(socketId, job.id as string, {
+        type: 'FAIL',
+        passed: count,
+        total: testCases.length,
+        error,
+        expectedOutput: failedExpected,
+        yourOutput: failedResult,
+      });
+    }
+  }
+}
