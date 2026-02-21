@@ -51,14 +51,10 @@ export type StrippedCharacter = Omit<
 
 @Injectable()
 export class AiService {
-  private readonly client: GoogleGenAI;
-  constructor() {
-    this.client = new GoogleGenAI({ apiKey: process.env.AI_API });
-  }
 
-  async genLevels(character: StrippedCharacter) {
-    console.log('Generating Levels...');
-    const response = await this.client.models.generateContent({
+  async genLevels(character: StrippedCharacter, apiKey: string) {
+    const client = new GoogleGenAI({ apiKey });
+    const response = await client.models.generateContent({
       model: 'gemini-3-flash-preview',
       config: {
         responseMimeType: 'application/json',
@@ -84,8 +80,9 @@ export class AiService {
     return levels;
   }
 
-  async genStartStory(levels: string[], character: StrippedCharacter) {
-    const response = await this.client.models.generateContent({
+  async genStartStory(levels: string[], character: StrippedCharacter, apiKey: string) {
+    const client = new GoogleGenAI({ apiKey });
+    const response = await client.models.generateContent({
       model: 'gemini-3-flash-preview',
       config: {
         responseMimeType: 'application/json',
@@ -114,8 +111,10 @@ export class AiService {
     game: { levels: string[]; curLevel: number; curLevelSummary: string },
     problem: StrippedProblem,
     character: StrippedCharacter,
+    apiKey: string,
   ) {
-    const response = await this.client.models.generateContent({
+    const client = new GoogleGenAI({ apiKey });
+    const response = await client.models.generateContent({
       model: 'gemini-3-flash-preview',
       config: {
         responseMimeType: 'application/json',
@@ -149,8 +148,10 @@ export class AiService {
       lives: number;
     },
     character: StrippedCharacter,
+    apiKey: string,
   ) {
-    const response = await this.client.models.generateContent({
+    const client = new GoogleGenAI({ apiKey });
+    const response = await client.models.generateContent({
       model: 'gemini-3-flash-preview',
       config: {
         responseMimeType: 'application/json',
@@ -182,8 +183,10 @@ export class AiService {
       curLevelSummary: string;
     },
     character: StrippedCharacter,
+    apiKey: string,
   ) {
-    const response = await this.client.models.generateContent({
+    const client = new GoogleGenAI({ apiKey });
+    const response = await client.models.generateContent({
       model: 'gemini-3-flash-preview',
       config: {
         responseMimeType: 'application/json',

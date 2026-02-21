@@ -32,10 +32,10 @@ export class GameController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  new(@Req() req: VerifiedUserRequest, @Body() createGameDto: CreateGameDto) {
+  new(@Body() createGameDto: CreateGameDto) {
     if (!createGameDto.characterId)
       throw new BadRequestException('No characterId was provided');
-    return this.gameService.new(req.user.userId, createGameDto);
+    return this.gameService.new(createGameDto);
   }
 
   @Get('demo')

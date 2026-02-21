@@ -42,6 +42,7 @@ export const UpdateProfileSchema = z.object({
     .or(z.literal("")),
   avatarUrl: z.url("Avatar must be a valid URL").optional().or(z.literal("")),
   bio: z.string().max(500, "Bio is too long").optional().or(z.literal("")),
+  apiKey: z.string().optional(),
 });
 
 export const SubmitCodeSchema = z.object({

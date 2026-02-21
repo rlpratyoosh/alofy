@@ -86,6 +86,7 @@ export default function UserProfile() {
         displayName: data.displayName || undefined,
         avatarUrl: data.avatarUrl || undefined,
         bio: data.bio || undefined,
+        apiKey: data.apiKey || undefined,
       };
 
       await api.post("/profile/update", cleanData);
@@ -217,6 +218,30 @@ export default function UserProfile() {
                     <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1.5">
                       <AlertCircle size={12} />
                       {errors.bio.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* API Key */}
+                <div>
+                  <label className="block text-xs font-bold text-foreground/70 uppercase tracking-wider mb-2">
+                    API Key
+                  </label>
+                  <div className="relative">
+                    <User
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/30"
+                    />
+                    <input
+                      {...register("apiKey")}
+                      placeholder="e.g. ******************"
+                      className="w-full pl-10 pr-4 py-3 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 transition-colors"
+                    />
+                  </div>
+                  {errors.apiKey && (
+                    <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1.5">
+                      <AlertCircle size={12} />
+                      {errors.apiKey.message}
                     </p>
                   )}
                 </div>

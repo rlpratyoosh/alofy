@@ -4,13 +4,14 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { CreateGameDto } from './dto/create-game.dto';
 import { Character, prisma, Problem } from '@repo/db';
 import {
   AiService,
   GeneratedQuestion,
   StrippedCharacter,
 } from 'src/ai/ai.service';
+import { EncryptionService } from 'src/common/encryption/encryption.service';
+import { CreateGameDto } from './dto/create-game.dto';
 
 // const testCharacter: Character = {
 //   id: 'something',
@@ -26,13 +27,16 @@ import {
 
 @Injectable()
 export class GameService {
-  constructor(private readonly ai: AiService) {}
+  constructor(
+    private readonly ai: AiService,
+    private readonly encryptionService: EncryptionService,
+  ) {}
 
   // async test() {
   //   await this.ai.genLevels(testCharacter);
   // }
 
-  async new(userId: string, createGameDto: CreateGameDto) {
+  async new(createGameDto: CreateGameDto) {
     try {
       const character = await prisma.character.findUnique({
         where: { id: createGameDto.characterId },
@@ -45,7 +49,17 @@ export class GameService {
 
       if (!character) throw new BadRequestException("Character doesn't exist");
 
-      const levels = await this.ai.genLevels(character);
+      const profile = await prisma.profile.findUnique({
+        where: { id: character.profileId },
+      });
+
+      if (!profile)
+        throw new BadRequestException('No associated profile found!');
+      if (!profile.apiKey) throw new BadRequestException('API Key not updated');
+
+      const apiKey = await this.encryptionService.decrypt(profile.apiKey);
+
+      const levels = await this.ai.genLevels(character, apiKey);
 
       const data = {
         ...createGameDto,
@@ -87,11 +101,26 @@ export class GameService {
       });
 
       if (!game) throw new BadRequestException('No game found');
+      if (!game.character)
+        throw new BadRequestException(
+          'No character found attatched with game!',
+        );
+
+      const profile = await prisma.profile.findUnique({
+        where: { id: game.character.profileId },
+      });
+
+      if (!profile)
+        throw new BadRequestException('No associated profile found!');
+      if (!profile.apiKey) throw new BadRequestException('API Key not updated');
+
+      const apiKey = await this.encryptionService.decrypt(profile.apiKey);
 
       if (game.curLevel == 0) {
         const { story, summary } = await this.ai.genStartStory(
           game.levels,
           game.character as Character,
+          apiKey,
         );
         return await prisma.game.update({
           where: { id },
@@ -126,6 +155,7 @@ export class GameService {
           },
           problems[0],
           game.character as StrippedCharacter,
+          apiKey,
         );
 
         let examples = '';
@@ -162,6 +192,7 @@ export class GameService {
             lives: game.lives,
           },
           game.character as StrippedCharacter,
+          apiKey,
         );
         const point = game.point + 100 - game.curLevelAttempts * 33;
         return await prisma.game.update({
@@ -184,6 +215,7 @@ export class GameService {
             curLevelSummary: game.curLevelSummary as string,
           },
           game.character as StrippedCharacter,
+          apiKey,
         );
         return await prisma.game.update({
           where: { id },

@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import validateOrThrow from 'src/common/helper/zod-validation.helper';
+import { z } from 'zod';
 
 const envSchema = z.object({
   DATABASE_URL: z.url('Must provide database connection URL in .env'),
@@ -24,7 +24,7 @@ const envSchema = z.object({
   MAIL_PASSWORD: z.string('Mail Password is required'),
   REDIS_HOST: z.string('Redis host is required'),
   REDIS_PORT: z.string('Redis port is required'),
-  AI_API: z.string('Ai API is required'),
+  ENCRYPTION_KEY: z.string('ENCRYPTION_KEY is required'),
 });
 
 export default function envValidation(env: Record<string, string | undefined>) {

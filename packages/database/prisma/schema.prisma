@@ -37,6 +37,7 @@ model Profile {
   displayName String?
   avatarUrl   String?
   bio         String?     @db.Text
+  apiKey      String?
   games       Game[]
   characters  Character[]
   userId      String      @unique
