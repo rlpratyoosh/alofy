@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, AlertTriangle, CreditCard, Key, RefreshCw, Server, X, Zap } from "lucide-react";
+import { AlertCircle, AlertTriangle, CreditCard, ExternalLink, Key, RefreshCw, Server, X, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export type ErrorType =
@@ -30,6 +30,7 @@ const getErrorConfig = (errorType: ErrorType) => {
                 description: "You've made too many requests. Please wait a moment before trying again.",
                 showRetry: true,
                 showProfile: false,
+                showGuide: false,
             };
         case "AI_INVALID_KEY":
             return {
@@ -41,6 +42,7 @@ const getErrorConfig = (errorType: ErrorType) => {
                 description: "Your API key is invalid or has expired. Please update it in your profile.",
                 showRetry: false,
                 showProfile: true,
+                showGuide: true,
             };
         case "AI_QUOTA_EXCEEDED":
             return {
@@ -53,6 +55,7 @@ const getErrorConfig = (errorType: ErrorType) => {
                     "Your API key has reached its usage limit. Please check your Gemini API quota or use a different key.",
                 showRetry: false,
                 showProfile: true,
+                showGuide: true,
             };
         case "AI_SERVICE_ERROR":
             return {
@@ -64,6 +67,7 @@ const getErrorConfig = (errorType: ErrorType) => {
                 description: "The AI service is temporarily unavailable. Please try again later.",
                 showRetry: true,
                 showProfile: false,
+                showGuide: false,
             };
         case "API_KEY_REQUIRED":
             return {
@@ -75,6 +79,7 @@ const getErrorConfig = (errorType: ErrorType) => {
                 description: "Please add your Gemini API key in your profile to start playing.",
                 showRetry: false,
                 showProfile: true,
+                showGuide: true,
             };
         default:
             return {
@@ -86,6 +91,7 @@ const getErrorConfig = (errorType: ErrorType) => {
                 description: "An unexpected error occurred. Please try again.",
                 showRetry: true,
                 showProfile: false,
+                showGuide: false,
             };
     }
 };
@@ -99,7 +105,7 @@ export function ErrorModal({ error, errorType = "GENERIC", onClose, onRetry }: E
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
             <div
-                className={`relative w-full max-w-md bg-card rounded-xl border ${config.borderColor} shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300`}
+                className={`relative w-full max-w-lg bg-card rounded-xl border ${config.borderColor} shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300`}
             >
                 <div className={`${config.bgColor} border-b ${config.borderColor} px-6 py-4`}>
                     <div className="flex items-center justify-between">
@@ -129,6 +135,16 @@ export function ErrorModal({ error, errorType = "GENERIC", onClose, onRetry }: E
                         </div>
                     )}
 
+                    {config.showGuide && (
+                        <button
+                            onClick={() => router.push("/guide/gemini-api-key")}
+                            className="w-full px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-all flex items-center justify-center gap-2"
+                        >
+                            <ExternalLink size={12} />
+                            <span>How to get a Gemini API Key</span>
+                        </button>
+                    )}
+
                     <div className="flex gap-3 pt-2">
                         {config.showProfile && (
                             <button
@@ -141,7 +157,10 @@ export function ErrorModal({ error, errorType = "GENERIC", onClose, onRetry }: E
                         )}
                         {config.showRetry && onRetry && (
                             <button
-                                onClick={onRetry}
+                                onClick={() => {
+                                    onRetry();
+                                    onClose();
+                                }}
                                 className="flex-1 px-4 py-3 bg-accent/10 border border-accent/30 rounded-lg text-accent font-bold text-xs uppercase tracking-wider hover:bg-accent/20 transition-all flex items-center justify-center gap-2"
                             >
                                 <RefreshCw size={16} />

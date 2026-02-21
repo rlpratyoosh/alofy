@@ -21,8 +21,7 @@ Alofy is a **text-based RPG game powered by AI** where every playthrough generat
 ### 🌟 Key Features
 
 | Feature | Description |
-|---------|-------------|
-| 🤖 **AI-Generated Stories** | Every game creates a unique narrative tailored to your character and choices |
+|---------|-------------|| 🔑 **Bring Your Own Key** | Use YOUR Gemini API key - full transparency, no hidden costs, complete control || 🤖 **AI-Generated Stories** | Every game creates a unique narrative tailored to your character and choices |
 | 📚 **10 Levels** | Progress through 10 unique levels with AI-generated story content |
 | ❤️ **3 Hearts** | You start with 3 lives - fail a hurdle and lose a heart |
 | ⚔️ **3 Hurdles** | Boss battles at levels 3, 6, and 9 with DSA coding challenges |
@@ -33,11 +32,11 @@ Alofy is a **text-based RPG game powered by AI** where every playthrough generat
 
 Choose your coding language of choice:
 
-| Class | Language |
-|-------|----------|
+| Class         | Language   |
+| ------------- | ---------- |
 | 🐍 **Python** | Python 3.x |
-| ☕ **Java** | Java 15.x |
-| ⚡ **C++** | C++ 10.x |
+| ☕ **Java**   | Java 15.x  |
+| ⚡ **C++**    | C++ 10.x   |
 
 ---
 
@@ -47,20 +46,19 @@ Choose your coding language of choice:
 
 <!-- Add your screenshots here -->
 
-| Landing Page | Game Menu |
-|:------------:|:---------:|
+|                  Landing Page                  |                Game Menu                 |
+| :--------------------------------------------: | :--------------------------------------: |
 | ![Landing Page](screenshots/Alofy-Landing.png) | ![Game Menu](screenshots/Alofy-Menu.png) |
 
-| Character Creation | Gameplay |
-|:------------------:|:--------:|
+|                   Character Creation                   |                  Gameplay                   |
+| :----------------------------------------------------: | :-----------------------------------------: |
 | ![Character Creation](screenshots/Alofy-Character.png) | ![Gameplay](screenshots/Alofy-Gameplay.png) |
 
-| Code Editor | Game Over Screen |
-|:-----------:|:--------------:|
+|                Code Editor                 |              Game Over Screen               |
+| :----------------------------------------: | :-----------------------------------------: |
 | ![Code Editor](screenshots/Alofy-Code.png) | ![GameOver](screenshots/Alofy-GameOver.png) |
 
 </div>
-
 
 ---
 
@@ -102,6 +100,30 @@ alofy/
 
 ---
 
+## 🔑 Bring Your Own Key (BYOK)
+
+Alofy uses a **BYOK (Bring Your Own Key)** model for AI features. Unlike other AI-powered applications that hide API costs in subscription fees, Alofy gives you complete transparency and control.
+
+### Why BYOK?
+
+| Benefit                        | Description                                                               |
+| ------------------------------ | ------------------------------------------------------------------------- |
+| 💰 **Free to Play**            | Google's Gemini API offers a generous free tier - play without paying!    |
+| 🔒 **Your Data, Your Control** | Your API key is encrypted with AES-256 and never stored in plain text     |
+| 👁️ **Full Transparency**       | See exactly how the AI is being used and track your own usage             |
+| 🚫 **No Hidden Costs**         | No surprise charges - you only pay what Google charges (usually nothing!) |
+
+### Getting Your API Key
+
+1. Visit [Google AI Studio](https://aistudio.google.com)
+2. Sign in with your Google account
+3. Click "Get API Key" → "Create API Key"
+4. Copy your key and add it to your Alofy profile
+
+> **Security Note:** Your API key is encrypted using AES-256-CTR encryption before being stored. It's only decrypted when needed to make AI requests.
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -116,40 +138,45 @@ alofy/
 ### Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/rlpratyoosh/alofy.git
-   cd alofy
-   ```
+
+    ```bash
+    git clone https://github.com/rlpratyoosh/alofy.git
+    cd alofy
+    ```
 
 2. **Install dependencies**
-   ```bash
-   pnpm install
-   ```
+
+    ```bash
+    pnpm install
+    ```
 
 3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   cp /packages/database/.env.example /packages/database/.env
-   cp /apps/api/.env.example /apps/api/.env
-   cp /apps/web/.env.example /apps/web/.env
 
-   # Edit .env with your configuration
-   ```
+    ```bash
+    cp .env.example .env
+    cp /packages/database/.env.example /packages/database/.env
+    cp /apps/api/.env.example /apps/api/.env
+    cp /apps/web/.env.example /apps/web/.env
+
+    # Edit .env with your configuration
+    ```
 
 4. **Start the database**
-   ```bash
-   docker-compose up -d
-   ```
+
+    ```bash
+    docker-compose up -d
+    ```
 
 5. **Run database migrations**
-   ```bash
-   pnpm db:migrate
-   ```
+
+    ```bash
+    pnpm db:migrate
+    ```
 
 6. **Start the development server**
-   ```bash
-   pnpm dev
-   ```
+    ```bash
+    pnpm dev
+    ```
 
 ---
 
@@ -181,7 +208,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-
 ---
 
 ## ⚠️ Development Status
@@ -190,7 +216,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 # 🚧 Under Active Development 🚧
 
-*Some features may be incomplete or subject to change*
+_Some features may be incomplete or subject to change_
 
 </div>
 

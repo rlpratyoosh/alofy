@@ -430,9 +430,12 @@ export default function GameComponent({ id }: { id: string }) {
     const GameTopBar = () => (
         <div className="h-10 border-b border-border flex items-center justify-between px-4 select-none z-50 bg-background shrink-0">
             <div className="flex items-center gap-4">
-                <div className="font-bold tracking-wider text-lg text-accent">
+                <button
+                    onClick={() => router.push("/menu")}
+                    className="font-bold tracking-wider text-lg text-accent hover:opacity-80 transition-opacity cursor-pointer"
+                >
                     <GlitchText text="ALOFY" className="text-lg" />
-                </div>
+                </button>
                 <div className="h-4 w-px bg-border" />
                 <div className="flex items-center gap-2 text-xs text-foreground/70">
                     <Gamepad2 size={14} className="text-accent" />
@@ -474,7 +477,10 @@ export default function GameComponent({ id }: { id: string }) {
                 </div>
                 {/* User Avatar */}
                 <div className="h-4 w-px bg-border" />
-                <div className="w-7 h-7 rounded-full bg-card border border-border flex items-center justify-center overflow-hidden">
+                <button
+                    onClick={() => router.push("/profile")}
+                    className="w-7 h-7 rounded-full bg-card border border-border flex items-center justify-center overflow-hidden hover:border-accent/50 transition-colors cursor-pointer"
+                >
                     {authLoading ? (
                         <div className="w-full h-full bg-card animate-pulse" />
                     ) : authUser?.profile?.avatarUrl ? (
@@ -486,7 +492,7 @@ export default function GameComponent({ id }: { id: string }) {
                     ) : (
                         <UserCircle size={18} className="text-accent/50" />
                     )}
-                </div>
+                </button>
             </div>
         </div>
     );
