@@ -1,4 +1,5 @@
 import {
+  HttpException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -19,6 +20,19 @@ export class ProfileService {
     private readonly encryptionService: EncryptionService,
   ) {}
 
+  async hasApiKey(userId: string): Promise<{ hasApiKey: boolean }> {
+    try {
+      const profile = await prisma.profile.findUnique({
+        where: { userId },
+        select: { apiKey: true },
+      });
+      return { hasApiKey: !!profile?.apiKey };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException('Failed to check API key status');
+    }
+  }
+
   async update(userId: string, updateProfileDto: UpdateProfileDto) {
     try {
       if (updateProfileDto.apiKey) {
@@ -36,13 +50,14 @@ export class ProfileService {
       });
       await this.redis.del(`user:${userId}`);
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       if (
         error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2025'
       )
         throw new NotFoundException('Profile associated with user not found');
 
-      throw new InternalServerErrorException('Something went wrong');
+      throw new InternalServerErrorException('Failed to update profile');
     }
   }
 }

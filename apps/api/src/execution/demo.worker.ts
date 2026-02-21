@@ -1,7 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { prisma } from '@repo/db';
 import { Job } from 'bullmq';
 import { SubmitDemoCodeDto } from './dto/execution.dto';
-import { prisma } from '@repo/db';
 
 type Result = {
   language: string;
@@ -73,84 +73,142 @@ export class DemoExecutionWorker extends WorkerHost {
     const { language, userCode, version, problemSlug, socketId } =
       job.data.submitDemoCodeDto;
 
-    const problem = await prisma.problem.findUnique({
-      where: {
-        slug: problemSlug,
-      },
-    });
-
-    const drivers = problem?.driverCode as Record<string, string>;
-    const driverTemplate = drivers[language];
-
-    const main = {
-      content: driverTemplate.replace('@@USER_CODE@@', userCode),
-    };
-
-    console.log(main);
-
-    const testCases = problem?.testCases as TestCase[];
-
-    let count = 0;
-    let pass = true;
-    let error = '';
-    let failedExpected = '';
-    let failedResult = '';
-    for (const testCase of testCases) {
-      const data = {
-        language,
-        version,
-        files: [main],
-        stdin: testCase.input,
-      };
-
-      const response = await fetch('http://localhost:2000/api/v2/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+    try {
+      const problem = await prisma.problem.findUnique({
+        where: {
+          slug: problemSlug,
+        },
       });
 
-      const result = (await response.json()) as Result;
-
-      if (result.run.stderr) {
-        pass = false;
-        error = result.run.stderr;
-        break;
+      if (!problem) {
+        this.events.handleResult(socketId, job.id as string, {
+          type: 'FAIL',
+          passed: 0,
+          total: 0,
+          error: 'Problem not found',
+          expectedOutput: '',
+          yourOutput: '',
+        });
+        return;
       }
 
-      if (
-        compareOutputs(
-          result.run.stdout,
-          testCase.output,
-          problem?.validationType,
-        )
-      ) {
-        count++;
-        this.events.handleProgress(socketId, job.id as string, {
+      const drivers = problem.driverCode as Record<string, string>;
+      const driverTemplate = drivers[language];
+
+      if (!driverTemplate) {
+        this.events.handleResult(socketId, job.id as string, {
+          type: 'FAIL',
+          passed: 0,
+          total: 0,
+          error: `Language '${language}' is not supported for this problem`,
+          expectedOutput: '',
+          yourOutput: '',
+        });
+        return;
+      }
+
+      const main = {
+        content: driverTemplate.replace('@@USER_CODE@@', userCode),
+      };
+
+      const testCases = problem.testCases as TestCase[];
+
+      let count = 0;
+      let pass = true;
+      let error = '';
+      let failedExpected = '';
+      let failedResult = '';
+      for (const testCase of testCases) {
+        const data = {
+          language,
+          version,
+          files: [main],
+          stdin: testCase.input,
+        };
+
+        let response;
+        try {
+          response = await fetch('http://localhost:2000/api/v2/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+        } catch {
+          this.events.handleResult(socketId, job.id as string, {
+            type: 'FAIL',
+            passed: count,
+            total: testCases.length,
+            error: 'Code execution service is unavailable',
+            expectedOutput: '',
+            yourOutput: '',
+          });
+          return;
+        }
+
+        if (!response.ok) {
+          this.events.handleResult(socketId, job.id as string, {
+            type: 'FAIL',
+            passed: count,
+            total: testCases.length,
+            error: 'Code execution failed',
+            expectedOutput: '',
+            yourOutput: '',
+          });
+          return;
+        }
+
+        const result = (await response.json()) as Result;
+
+        if (result.run.stderr) {
+          pass = false;
+          error = result.run.stderr;
+          break;
+        }
+
+        if (
+          compareOutputs(
+            result.run.stdout,
+            testCase.output,
+            problem.validationType,
+          )
+        ) {
+          count++;
+          this.events.handleProgress(socketId, job.id as string, {
+            passed: count,
+            total: testCases.length,
+          });
+        } else {
+          pass = false;
+          failedExpected = testCase.output;
+          failedResult = result.run.stdout;
+          break;
+        }
+      }
+
+      if (pass) {
+        this.events.handleResult(socketId, job.id as string, {
+          type: 'PASS',
           passed: count,
           total: testCases.length,
         });
       } else {
-        pass = false;
-        failedExpected = testCase.output;
-        failedResult = result.run.stdout;
-        break;
+        this.events.handleResult(socketId, job.id as string, {
+          type: 'FAIL',
+          passed: count,
+          total: testCases.length,
+          error,
+          expectedOutput: failedExpected,
+          yourOutput: failedResult,
+        });
       }
-    }
-
-    if (pass) {
-      this.events.handleResult(socketId, job.id as string, {
-        type: 'PASS',
-        passed: count,
-        total: testCases.length,
-      });
-    } else {
+    } catch {
       this.events.handleResult(socketId, job.id as string, {
         type: 'FAIL',
-        passed: count,
-        total: testCases.length,
-        error,
-        expectedOutput: failedExpected,
-        yourOutput: failedResult,
+        passed: 0,
+        total: 0,
+        error: 'An unexpected error occurred during execution',
+        expectedOutput: '',
+        yourOutput: '',
       });
     }
   }

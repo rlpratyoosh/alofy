@@ -11,6 +11,7 @@ import {
   StrippedCharacter,
 } from 'src/ai/ai.service';
 import { EncryptionService } from 'src/common/encryption/encryption.service';
+import { ApiKeyRequiredException } from 'src/common/exceptions/ai.exceptions';
 import { CreateGameDto } from './dto/create-game.dto';
 
 // const testCharacter: Character = {
@@ -55,7 +56,7 @@ export class GameService {
 
       if (!profile)
         throw new BadRequestException('No associated profile found!');
-      if (!profile.apiKey) throw new BadRequestException('API Key not updated');
+      if (!profile.apiKey) throw new ApiKeyRequiredException();
 
       const apiKey = await this.encryptionService.decrypt(profile.apiKey);
 
@@ -112,7 +113,7 @@ export class GameService {
 
       if (!profile)
         throw new BadRequestException('No associated profile found!');
-      if (!profile.apiKey) throw new BadRequestException('API Key not updated');
+      if (!profile.apiKey) throw new ApiKeyRequiredException();
 
       const apiKey = await this.encryptionService.decrypt(profile.apiKey);
 

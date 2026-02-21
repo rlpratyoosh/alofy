@@ -1,10 +1,13 @@
 import {
   BadRequestException,
+  HttpException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
-import { CreateCharacterDto } from './dto/create-character.dto';
 import { prisma } from '@repo/db';
+import { PrismaClientKnownRequestError } from 'node_modules/@repo/db/dist/generated/prisma/internal/prismaNamespace';
+import { CreateCharacterDto } from './dto/create-character.dto';
 
 @Injectable()
 export class CharacterService {
@@ -18,7 +21,7 @@ export class CharacterService {
       });
       if (!profile)
         throw new BadRequestException(
-          'Could not find profile attatched with the user account',
+          'Could not find profile attached with the user account',
         );
 
       const data = {
@@ -29,9 +32,9 @@ export class CharacterService {
       await prisma.character.create({
         data,
       });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (er) {
-      throw new InternalServerErrorException();
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException('Failed to create character');
     }
   }
 
@@ -42,12 +45,23 @@ export class CharacterService {
       });
       if (!profile)
         throw new BadRequestException('No profile attached with the user');
+
+      const character = await prisma.character.findUnique({
+        where: { id: characterId, profileId: profile.id },
+      });
+      if (!character) throw new NotFoundException('Character not found');
+
       await prisma.character.delete({
         where: { id: characterId, profileId: profile.id },
       });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (er) {
-      throw new InternalServerErrorException();
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      )
+        throw new NotFoundException('Character not found');
+      throw new InternalServerErrorException('Failed to delete character');
     }
   }
 
@@ -58,15 +72,15 @@ export class CharacterService {
       });
       if (!profile)
         throw new BadRequestException(
-          'Could not find profile attatched with the user account',
+          'Could not find profile attached with the user account',
         );
 
       return await prisma.character.findMany({
         where: { profileId: profile.id },
       });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (er) {
-      throw new InternalServerErrorException();
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException('Failed to fetch characters');
     }
   }
 
@@ -77,15 +91,18 @@ export class CharacterService {
       });
       if (!profile)
         throw new BadRequestException(
-          'Could not find profile attatched with the user account',
+          'Could not find profile attached with the user account',
         );
 
-      return await prisma.character.findUnique({
+      const character = await prisma.character.findUnique({
         where: { id, profileId: profile.id },
       });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (er) {
-      throw new InternalServerErrorException();
+      if (!character) throw new NotFoundException('Character not found');
+
+      return character;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException('Failed to fetch character');
     }
   }
 }
