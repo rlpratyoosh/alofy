@@ -27,13 +27,13 @@ const Step = ({
     description: string;
     children?: React.ReactNode;
 }) => (
-    <div className="flex gap-4 p-6 bg-card border border-border rounded-lg hover:border-accent/30 transition-colors">
-        <div className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
-            <span className="text-accent font-bold">{number}</span>
+    <div className="flex gap-3 md:gap-4 p-4 md:p-6 bg-card border border-border rounded-lg hover:border-accent/30 transition-colors">
+        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+            <span className="text-accent font-bold text-sm md:text-base">{number}</span>
         </div>
         <div className="flex-1">
-            <h3 className="font-bold text-foreground mb-2">{title}</h3>
-            <p className="text-sm text-foreground/60 mb-3">{description}</p>
+            <h3 className="font-bold text-foreground mb-1.5 md:mb-2 text-sm md:text-base">{title}</h3>
+            <p className="text-xs md:text-sm text-foreground/60 mb-2 md:mb-3">{description}</p>
             {children}
         </div>
     </div>
@@ -53,37 +53,37 @@ export default function GeminiApiKeyGuide() {
         <div className="flex flex-col min-h-screen font-mono">
             <TopBar />
 
-            <div className="flex-1 px-4 py-8">
+            <div className="flex-1 px-4 py-6 md:py-8">
                 <div className="max-w-3xl mx-auto">
                     {/* Back Button */}
                     <button
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 text-foreground/50 hover:text-foreground transition-colors mb-8 text-sm"
+                        className="flex items-center gap-2 text-foreground/50 hover:text-foreground transition-colors mb-6 md:mb-8 text-sm"
                     >
                         <ArrowLeft size={16} />
                         <span>Back</span>
                     </button>
 
                     {/* Header */}
-                    <div className="text-center mb-12">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 mb-6">
-                            <Key size={32} className="text-amber-400" />
+                    <div className="text-center mb-8 md:mb-12">
+                        <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full bg-amber-500/10 border border-amber-500/20 mb-4 md:mb-6">
+                            <Key size={28} className="text-amber-400 md:w-8 md:h-8" />
                         </div>
-                        <h1 className="text-2xl md:text-3xl font-bold tracking-wide text-foreground mb-4">
+                        <h1 className="text-xl md:text-3xl font-bold tracking-wide text-foreground mb-3 md:mb-4">
                             Get Your Gemini API Key
                         </h1>
-                        <p className="text-foreground/60 max-w-lg mx-auto">
+                        <p className="text-sm md:text-base text-foreground/60 max-w-lg mx-auto px-2">
                             Follow this simple guide to get your free Gemini API key from Google AI Studio and start
                             your adventure in Alofy.
                         </p>
                     </div>
 
                     {/* Info Banner */}
-                    <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg mb-8 flex items-start gap-3">
-                        <Sparkles size={20} className="text-green-400 shrink-0 mt-0.5" />
+                    <div className="p-3 md:p-4 bg-green-500/10 border border-green-500/20 rounded-lg mb-6 md:mb-8 flex items-start gap-2 md:gap-3">
+                        <Sparkles size={18} className="text-green-400 shrink-0 mt-0.5 md:w-5 md:h-5" />
                         <div>
-                            <h4 className="font-bold text-green-400 text-sm mb-1">Good News!</h4>
-                            <p className="text-xs text-foreground/60">
+                            <h4 className="font-bold text-green-400 text-xs md:text-sm mb-1">Good News!</h4>
+                            <p className="text-[10px] md:text-xs text-foreground/60">
                                 Google offers a generous free tier for the Gemini API. You can play Alofy completely
                                 free with the free quota!
                             </p>
@@ -91,7 +91,7 @@ export default function GeminiApiKeyGuide() {
                     </div>
 
                     {/* Steps */}
-                    <div className="space-y-4 mb-12">
+                    <div className="space-y-3 md:space-y-4 mb-8 md:mb-12">
                         <Step
                             number={1}
                             title="Go to Google AI Studio"
@@ -172,14 +172,16 @@ export default function GeminiApiKeyGuide() {
                     </div>
 
                     {/* Security Note */}
-                    <div className="p-6 bg-card border border-border rounded-lg mb-8">
-                        <div className="flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0">
-                                <Shield size={20} className="text-green-400" />
+                    <div className="p-4 md:p-6 bg-card border border-border rounded-lg mb-6 md:mb-8">
+                        <div className="flex items-start gap-3 md:gap-4">
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0">
+                                <Shield size={16} className="text-green-400 md:w-5 md:h-5" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-foreground mb-2">Your API Key is Secure</h3>
-                                <p className="text-sm text-foreground/60 mb-3">
+                                <h3 className="font-bold text-foreground mb-1.5 md:mb-2 text-sm md:text-base">
+                                    Your API Key is Secure
+                                </h3>
+                                <p className="text-xs md:text-sm text-foreground/60 mb-2 md:mb-3">
                                     We take security seriously. Your API key is encrypted using AES-256 encryption
                                     before being stored. It&apos;s never exposed in plain text and is only decrypted
                                     when needed to make AI requests on your behalf.
@@ -203,11 +205,11 @@ export default function GeminiApiKeyGuide() {
                     </div>
 
                     {/* Warning Note */}
-                    <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg mb-8 flex items-start gap-3">
-                        <AlertCircle size={20} className="text-amber-400 shrink-0 mt-0.5" />
+                    <div className="p-3 md:p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg mb-6 md:mb-8 flex items-start gap-2 md:gap-3">
+                        <AlertCircle size={18} className="text-amber-400 shrink-0 mt-0.5 md:w-5 md:h-5" />
                         <div>
-                            <h4 className="font-bold text-amber-400 text-sm mb-1">Keep Your Key Safe</h4>
-                            <p className="text-xs text-foreground/60">
+                            <h4 className="font-bold text-amber-400 text-xs md:text-sm mb-1">Keep Your Key Safe</h4>
+                            <p className="text-[10px] md:text-xs text-foreground/60">
                                 Never share your API key publicly. If you accidentally expose it, you can always revoke
                                 it and create a new one in Google AI Studio.
                             </p>
@@ -218,7 +220,7 @@ export default function GeminiApiKeyGuide() {
                     <div className="text-center">
                         <button
                             onClick={() => router.push("/menu")}
-                            className="inline-flex items-center gap-3 px-8 py-4 bg-accent text-background font-bold uppercase tracking-wider rounded-lg hover:bg-accent/90 transition-all shadow-lg shadow-accent/20"
+                            className="inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-accent text-background font-bold uppercase tracking-wider rounded-lg hover:bg-accent/90 transition-all shadow-lg shadow-accent/20 text-sm md:text-base"
                         >
                             <span>Start Playing</span>
                             <ChevronRight size={18} />

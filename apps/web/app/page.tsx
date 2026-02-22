@@ -79,12 +79,12 @@ export default function LandingPage() {
     return (
         <div className="min-h-screen flex flex-col font-mono selection:bg-accent selection:text-background overflow-x-hidden">
             {/* Hero Section */}
-            <section className="flex-1 flex flex-col items-center justify-center px-4 py-20 relative">
+            <section className="flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-20 relative">
                 {/* Decorative grid background */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b324520_1px,transparent_1px),linear-gradient(to_bottom,#2b324520_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-                    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#2b324520_1px,transparent_1px),linear-gradient(to_bottom,#2b324520_1px,transparent_1px)] bg-[size:2rem_2rem] md:bg-[size:4rem_4rem]" />
+                    <div className="absolute top-1/4 left-1/4 w-48 h-48 md:w-96 md:h-96 bg-purple-500/5 rounded-full blur-3xl" />
+                    <div className="absolute bottom-1/4 right-1/4 w-48 h-48 md:w-96 md:h-96 bg-accent/5 rounded-full blur-3xl" />
                 </div>
 
                 {/* Logo */}
@@ -95,8 +95,8 @@ export default function LandingPage() {
                 </div>
 
                 {/* Tagline */}
-                <div className="relative z-10 text-center mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-                    <p className="text-xl md:text-2xl text-accent font-bold tracking-wider mb-3">
+                <div className="relative z-10 text-center mb-8 md:mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+                    <p className="text-lg md:text-2xl text-accent font-bold tracking-wider mb-2 md:mb-3">
                         A new story for every new game.
                     </p>
                     <p className="text-sm text-foreground/60 max-w-md mx-auto">
@@ -105,10 +105,10 @@ export default function LandingPage() {
                 </div>
 
                 {/* CTA Buttons */}
-                <div className="relative z-10 flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+                <div className="relative z-10 flex flex-col sm:flex-row gap-3 md:gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 w-full max-w-md sm:max-w-none sm:w-auto">
                     <button
                         onClick={() => router.push("/menu")}
-                        className="px-8 py-4 bg-accent text-background font-bold uppercase tracking-wider rounded-lg hover:bg-accent/90 transition-all duration-200 flex items-center gap-3 group shadow-lg shadow-accent/20"
+                        className="px-6 md:px-8 py-3 md:py-4 bg-accent text-background font-bold uppercase tracking-wider rounded-lg hover:bg-accent/90 transition-all duration-200 flex items-center justify-center gap-2 md:gap-3 group shadow-lg shadow-accent/20 text-sm md:text-base"
                     >
                         <Gamepad2 size={20} className="group-hover:rotate-12 transition-transform" />
                         <span>Start Your Journey</span>
@@ -116,15 +116,15 @@ export default function LandingPage() {
                     </button>
                     <button
                         onClick={() => router.push("/demo")}
-                        className="px-8 py-4 bg-card border border-border text-foreground font-bold uppercase tracking-wider rounded-lg hover:bg-card/80 hover:border-accent/50 transition-all duration-200 flex items-center gap-3 group"
+                        className="px-6 md:px-8 py-3 md:py-4 bg-card border border-border text-foreground font-bold uppercase tracking-wider rounded-lg hover:bg-card/80 hover:border-accent/50 transition-all duration-200 flex items-center justify-center gap-2 md:gap-3 group text-sm md:text-base"
                     >
-                        <Zap size={20} className="text-purple-400" />
+                        <Zap size={18} className="text-purple-400 md:w-5 md:h-5" />
                         <span>Try Demo</span>
                     </button>
                 </div>
 
                 {/* Stats Row */}
-                <div className="relative z-10 mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
+                <div className="relative z-10 mt-10 md:mt-16 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500 w-full max-w-md md:max-w-2xl">
                     <StatCard icon={Layers} value="10" label="Levels" color="text-blue-400" />
                     <StatCard icon={Heart} value="3" label="Hearts" color="text-red-400" />
                     <StatCard icon={Swords} value="3" label="Hurdles" color="text-yellow-400" />
@@ -133,7 +133,7 @@ export default function LandingPage() {
             </section>
 
             {/* What is Alofy Section */}
-            <section className="px-4 py-20 bg-card/30 border-t border-b border-border">
+            <section className="px-4 py-12 md:py-20 bg-card/30 border-t border-b border-border">
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-12">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/20 rounded-full mb-4">
@@ -179,10 +179,10 @@ export default function LandingPage() {
             </section>
 
             {/* BYOK Section */}
-            <section className="px-4 py-20 relative overflow-hidden">
+            <section className="px-4 py-12 md:py-20 relative overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
-                    <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-green-500/5 rounded-full blur-3xl" />
+                    <div className="absolute top-1/4 right-1/4 w-48 h-48 md:w-96 md:h-96 bg-amber-500/5 rounded-full blur-3xl" />
+                    <div className="absolute bottom-1/4 left-1/4 w-48 h-48 md:w-96 md:h-96 bg-green-500/5 rounded-full blur-3xl" />
                 </div>
 
                 <div className="max-w-4xl mx-auto relative z-10">
@@ -248,7 +248,7 @@ export default function LandingPage() {
             </section>
 
             {/* How It Works Section */}
-            <section className="px-4 py-20 bg-card/30 border-t border-b border-border">
+            <section className="px-4 py-12 md:py-20 bg-card/30 border-t border-b border-border">
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-12">
                         <h2 className="text-2xl md:text-3xl font-bold tracking-wide text-foreground mb-4">
@@ -342,7 +342,7 @@ export default function LandingPage() {
             </section>
 
             {/* Game Rules Section */}
-            <section className="px-4 py-20 border-t border-border">
+            <section className="px-4 py-12 md:py-20 border-t border-border">
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-12">
                         <h2 className="text-2xl md:text-3xl font-bold tracking-wide text-foreground mb-4">
@@ -389,7 +389,7 @@ export default function LandingPage() {
             </section>
 
             {/* Final CTA Section */}
-            <section className="px-4 py-20 relative overflow-hidden">
+            <section className="px-4 py-12 md:py-20 relative overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-3xl" />
                 </div>
@@ -404,10 +404,10 @@ export default function LandingPage() {
                     </p>
                     <button
                         onClick={() => router.push("/menu")}
-                        className="px-10 py-5 bg-accent text-background font-bold uppercase tracking-wider rounded-lg hover:bg-accent/90 transition-all duration-200 flex items-center gap-3 group shadow-lg shadow-accent/20 mx-auto"
+                        className="px-8 md:px-10 py-4 md:py-5 bg-accent text-background font-bold uppercase tracking-wider rounded-lg hover:bg-accent/90 transition-all duration-200 flex items-center gap-2 md:gap-3 group shadow-lg shadow-accent/20 mx-auto text-sm md:text-lg"
                     >
-                        <Gamepad2 size={24} className="group-hover:rotate-12 transition-transform" />
-                        <span className="text-lg">Enter the Game</span>
+                        <Gamepad2 size={20} className="group-hover:rotate-12 transition-transform md:w-6 md:h-6" />
+                        <span>Enter the Game</span>
                         <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>

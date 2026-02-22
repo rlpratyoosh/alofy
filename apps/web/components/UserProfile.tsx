@@ -105,19 +105,21 @@ export default function UserProfile() {
         return (
             <div className="flex flex-col min-h-screen font-mono">
                 <TopBar />
-                <div className="flex-1 flex items-center justify-center px-4 py-8">
+                <div className="flex-1 flex items-center justify-center px-3 md:px-4 py-6 md:py-8">
                     <div className="w-full max-w-md bg-card rounded-lg border border-border shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <TitleBar title="edit_profile.exe" onClose={() => setEditMode(false)} />
 
-                        <div className="p-6">
+                        <div className="p-4 md:p-6">
                             {/* Header */}
-                            <div className="flex items-center gap-3 mb-6">
+                            <div className="flex items-center gap-3 mb-4 md:mb-6">
                                 <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                                    <Edit3 size={20} className="text-purple-400" />
+                                    <Edit3 size={18} className="text-purple-400 md:w-5 md:h-5" />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-bold tracking-wide text-foreground">EDIT PROFILE</h2>
-                                    <p className="text-xs text-foreground/50 uppercase tracking-widest">
+                                    <h2 className="text-base md:text-lg font-bold tracking-wide text-foreground">
+                                        EDIT PROFILE
+                                    </h2>
+                                    <p className="text-[10px] md:text-xs text-foreground/50 uppercase tracking-widest">
                                         Update your information
                                     </p>
                                 </div>
@@ -279,12 +281,14 @@ export default function UserProfile() {
         return (
             <div className="flex flex-col min-h-screen font-mono">
                 <TopBar />
-                <div className="flex-1 flex items-center justify-center px-4 py-8">
+                <div className="flex-1 flex items-center justify-center px-3 md:px-4 py-6 md:py-8">
                     <div className="w-full max-w-md bg-card rounded-lg border border-border shadow-xl overflow-hidden">
                         <TitleBar title="profile.exe" />
-                        <div className="p-12 flex flex-col items-center gap-4">
-                            <Cpu className="animate-pulse w-12 h-12 text-accent" />
-                            <span className="text-xs tracking-widest text-foreground/50">LOADING PROFILE...</span>
+                        <div className="p-8 md:p-12 flex flex-col items-center gap-4">
+                            <Cpu className="animate-pulse w-10 h-10 md:w-12 md:h-12 text-accent" />
+                            <span className="text-[10px] md:text-xs tracking-widest text-foreground/50">
+                                LOADING PROFILE...
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -296,19 +300,21 @@ export default function UserProfile() {
     return (
         <div className="flex flex-col min-h-screen font-mono">
             <TopBar />
-            <div className="flex-1 flex items-center justify-center px-4 py-8">
+            <div className="flex-1 flex items-center justify-center px-3 md:px-4 py-6 md:py-8">
                 <div className="w-full max-w-md bg-card rounded-lg border border-border shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <TitleBar title="profile.exe" onClose={() => router.push("/menu")} />
 
-                    <div className="p-6">
+                    <div className="p-4 md:p-6">
                         {/* Header */}
-                        <div className="flex items-center gap-3 mb-6">
+                        <div className="flex items-center gap-3 mb-4 md:mb-6">
                             <div className="p-2 bg-accent/10 rounded-lg border border-accent/20">
-                                <UserCircle size={20} className="text-accent" />
+                                <UserCircle size={18} className="text-accent md:w-5 md:h-5" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold tracking-wide text-foreground">USER PROFILE</h2>
-                                <p className="text-xs text-foreground/50 uppercase tracking-widest">
+                                <h2 className="text-base md:text-lg font-bold tracking-wide text-foreground">
+                                    USER PROFILE
+                                </h2>
+                                <p className="text-[10px] md:text-xs text-foreground/50 uppercase tracking-widest">
                                     Your account information
                                 </p>
                             </div>
@@ -325,8 +331,8 @@ export default function UserProfile() {
                         {user && (
                             <>
                                 {/* Avatar and Name Section */}
-                                <div className="flex items-center gap-4 mb-6 p-4 bg-background rounded-lg border border-border">
-                                    <div className="w-16 h-16 rounded-full bg-card border-2 border-accent/30 flex items-center justify-center overflow-hidden">
+                                <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6 p-3 md:p-4 bg-background rounded-lg border border-border">
+                                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-card border-2 border-accent/30 flex items-center justify-center overflow-hidden shrink-0">
                                         {user.profile?.avatarUrl ? (
                                             <img
                                                 src={user.profile.avatarUrl}
@@ -334,29 +340,29 @@ export default function UserProfile() {
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
-                                            <UserCircle size={32} className="text-accent/50" />
+                                            <UserCircle size={28} className="text-accent/50 md:w-8 md:h-8" />
                                         )}
                                     </div>
-                                    <div className="flex-1">
-                                        <h3 className="font-bold text-foreground text-lg">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-bold text-foreground text-base md:text-lg truncate">
                                             {user.profile?.displayName || user.username}
                                         </h3>
-                                        <p className="text-xs text-foreground/50">@{user.username}</p>
+                                        <p className="text-[10px] md:text-xs text-foreground/50">@{user.username}</p>
                                     </div>
                                 </div>
 
                                 {/* Profile Details */}
-                                <div className="space-y-3 mb-6">
+                                <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
                                     {/* Email */}
-                                    <div className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border">
-                                        <div className="w-8 h-8 rounded-full bg-card border border-blue-500/20 flex items-center justify-center">
-                                            <Mail size={14} className="text-blue-400" />
+                                    <div className="flex items-center gap-2 md:gap-3 p-2.5 md:p-3 bg-background rounded-lg border border-border">
+                                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-card border border-blue-500/20 flex items-center justify-center shrink-0">
+                                            <Mail size={12} className="text-blue-400 md:w-3.5 md:h-3.5" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-[10px] text-foreground/50 uppercase tracking-wider font-bold">
+                                            <p className="text-[9px] md:text-[10px] text-foreground/50 uppercase tracking-wider font-bold">
                                                 Email
                                             </p>
-                                            <p className="text-sm text-foreground truncate">{user.email}</p>
+                                            <p className="text-xs md:text-sm text-foreground truncate">{user.email}</p>
                                         </div>
                                     </div>
 

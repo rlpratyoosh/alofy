@@ -24,7 +24,7 @@ export default function TopBar() {
     }, []);
 
     return (
-        <div className="h-10 border-b border-border flex items-center justify-between px-4 select-none z-50 bg-background shrink-0">
+        <div className="h-10 border-b border-border hidden md:flex items-center justify-between px-4 select-none z-50 bg-background shrink-0">
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => router.push("/menu")}
