@@ -8,9 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Result, Progress } from '@repo/types';
 
-@WebSocketGateway({
-  cors: { origin: '*' },
-})
+@WebSocketGateway()
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('EventsGateway');

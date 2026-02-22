@@ -107,7 +107,7 @@ export default function GameComponent({ id }: { id: string }) {
     const editorPanelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        socket.current = io("http://localhost:8000");
+        socket.current = io();
 
         return () => {
             socket.current?.disconnect();

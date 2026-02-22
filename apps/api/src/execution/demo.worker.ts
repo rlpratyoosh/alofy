@@ -128,12 +128,16 @@ export class DemoExecutionWorker extends WorkerHost {
 
         let response;
         try {
-          response = await fetch('http://localhost:2000/api/v2/execute', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          });
-        } catch {
+          response = await fetch(
+            `${process.env.PISTON_URL}/api/v2/execute` ||
+              'http://localhost:2000/api/v2/execute',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            },
+          );
+        } catch (er) {
           this.events.handleResult(socketId, job.id as string, {
             type: 'FAIL',
             passed: count,
